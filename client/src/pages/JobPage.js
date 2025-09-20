@@ -1,24 +1,19 @@
-import { useEffect, useState } from "react";
+import { useJob } from "../lib/graphql/hooks";
 
 import { useParams } from "react-router";
 import { Link } from "react-router-dom";
 import { formatDate } from "../lib/formatters";
-import { getJobById } from "../lib/graphql/queries";
 
 function JobPage() {
   const { jobId } = useParams();
-  const [job, setJob] = useState(null);
 
-  useEffect(() => {
-    const fetchJob = async () => {
-      const job = await getJobById(jobId);
-      setJob(job);
-    };
+  const { loading, error, job } = useJob(jobId);
 
-    fetchJob();
-  }, [jobId]);
+  if (error) {
+    return <div className="error is-danger">Error:{error}</div>;
+  }
 
-  if (!job) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 

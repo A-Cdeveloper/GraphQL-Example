@@ -1,28 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createJobMutation } from "../lib/graphql/mutations";
+import { useCreateJob } from "../lib/graphql/hooks";
 
 function CreateJobPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [error, setError] = useState(null);
+
+  const { createJob, loading, error } = useCreateJob();
 
   const navigation = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    try {
-      const newJob = await createJobMutation({ title, description });
-      navigation(`/jobs/${newJob.id}`);
-    } catch (error) {
-      setError(error.errors[0].message);
-    }
+    const job = await createJob(title, description);
+    navigation(`/jobs/${job.id}`);
   };
 
   return (
     <div>
       <h1 className="title">New Job</h1>
-      {error && <div className="notification is-danger">{error}</div>}
+      {error && (
+        <div className="notification is-danger">Error: {error.message}</div>
+      )}
       <div className="box">
         <form>
           <div className="field">
@@ -49,8 +48,12 @@ function CreateJobPage() {
           </div>
           <div className="field">
             <div className="control">
-              <button className="button is-link" onClick={handleSubmit}>
-                Submit
+              <button
+                className="button is-link"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </div>

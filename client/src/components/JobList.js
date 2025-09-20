@@ -1,24 +1,28 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { apolloClient } from "../lib/graphql/client";
 import { formatDate } from "../lib/formatters";
-import { deleteJobMutation } from "../lib/graphql/mutations";
+import { useDeleteJob } from "../lib/graphql/hooks";
 
 function JobList({ jobs }) {
-  const [error, setError] = useState(null);
   return (
     <>
-      {error && <div className="notification is-danger">{error}</div>}
       <ul className="box">
         {jobs.map((job) => (
-          <JobItem key={job.id} job={job} onError={setError} />
+          <JobItem key={job.id} job={job} />
         ))}
       </ul>
     </>
   );
 }
 
-function JobItem({ job, onError }) {
+function JobItem({ job }) {
   const title = job.company ? `${job.title} at ${job.company.name}` : job.title;
+
+  const { deleteJob, loading } = useDeleteJob();
+
+  // if (error) {
+  //   return <div className="error is-danger">Error:{error}</div>;
+  // }
 
   return (
     <li className="media">
@@ -28,15 +32,12 @@ function JobItem({ job, onError }) {
       </div>
       <div
         onClick={async () => {
-          try {
-            await deleteJobMutation({ id: job.id });
-          } catch (error) {
-            onError(error.errors[0].message);
-          }
+          await deleteJob(job.id);
+          await apolloClient.resetStore();
         }}
         className="is-uppercase is-small is-danger is-cursor-pointer"
       >
-        delete
+        {loading ? "Deleting..." : "Delete"}
       </div>
     </li>
   );
