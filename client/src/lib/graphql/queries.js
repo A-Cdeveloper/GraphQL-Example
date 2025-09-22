@@ -1,14 +1,17 @@
 import { gql } from "@apollo/client";
 
 export const GET_JOBS_QUERY = gql`
-  query GetJobs {
-    jobs {
-      id
-      title
-      date
-      company {
-        name
+  query GetJobs($limit: Int, $offset: Int) {
+    jobs(limit: $limit, offset: $offset) {
+      items {
+        id
+        title
+        date
+        company {
+          name
+        }
       }
+      totalCount
     }
   }
 `;

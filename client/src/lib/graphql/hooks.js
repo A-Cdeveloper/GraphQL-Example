@@ -18,14 +18,16 @@ export const useCompanyById = (id) => {
   };
 };
 
-export const useJobs = () => {
+export const useJobs = (limit, offset) => {
   const { loading, error, data } = useQuery(GET_JOBS_QUERY, {
+    variables: { limit, offset },
     fetchPolicy: "network-only",
   });
   return {
     loading,
     error: Boolean(error),
     jobs: data?.jobs,
+    count: data?.jobs.totalCount,
   };
 };
 
